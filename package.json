@@ -1,0 +1,30 @@
+{
+  "name": "artifact-exists",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "release": "ncc build src/artifact-exists.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/skotep/artifact-exists.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/skotep/artifact-exists/issues"
+  },
+  "homepage": "https://github.com/skotep/artifact-exists#readme",
+  "dependencies": {
+    "@actions/artifact": "^1.1.1",
+    "@actions/core": "^1.10.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.11.18",
+    "@vercel/ncc": "^0.36.0",
+    "typescript": "^4.9.4"
+  }
+}

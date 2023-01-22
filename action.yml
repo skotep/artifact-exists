@@ -1,0 +1,21 @@
+name: 'Artifact Exists'
+description: 'Check if a file exists within a previous artifact upload'
+author: 'skotep'
+inputs:
+  name:
+    description: 'Artifact name'
+    required: true
+  files:
+    description: 'Comma separated files to check existence of'
+    required: true
+  fail-on-missing:
+    description: 'fail on missing files'
+    default: true
+outputs:
+  all-found:
+    description: 'were all files found in the artifact'
+  files-found:
+    description: 'these files found in the artifact'
+runs:
+  using: 'node16'
+  main: 'dist/index.js'

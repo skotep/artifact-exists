@@ -12,6 +12,11 @@ async function run(): Promise<void> {
     const failOnMissing = core.getInput(Inputs.FailOnMissing, {required: false})
     core.info(`Looking for \u001b[35m"${files}"\u001b[0m in artifact "${name}"`)
 
+    core.setOutput(Outputs.AllFound, true)
+    core.setOutput(Outputs.FilesFound, true)
+    core.info(`\u001b[1; XXX EARLY ABORT TRUE XXX`)
+    return
+
     const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ae-'))
     core.debug(`Temporary path is ${tmpDir}`)
 

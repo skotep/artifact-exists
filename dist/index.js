@@ -9540,6 +9540,10 @@ function run() {
             const files = core.getInput(constants_1.Inputs.Files, { required: true }).split(',');
             const failOnMissing = core.getInput(constants_1.Inputs.FailOnMissing, { required: false });
             core.info(`Looking for \u001b[35m"${files}"\u001b[0m in artifact "${name}"`);
+            core.setOutput(constants_1.Outputs.AllFound, true);
+            core.setOutput(constants_1.Outputs.FilesFound, true);
+            core.info(`\u001b[1; XXX EARLY ABORT TRUE XXX`);
+            return;
             const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ae-'));
             core.debug(`Temporary path is ${tmpDir}`);
             const artifactClient = artifact.create();

@@ -1,8 +1,11 @@
-import * as core from '@actions/core'
-import * as artifact from '@actions/artifact'
 import * as path from 'path'
 import * as fs from 'fs'
 import * as os from 'os'
+
+import * as core from '@actions/core'
+import artifactClient from '@actions/artifact'
+import {Minimatch} from 'minimatch'
+
 import {Inputs, Outputs} from './constants'
 
 async function run(): Promise<void> {
@@ -12,30 +15,29 @@ async function run(): Promise<void> {
     const failOnMissing = core.getInput(Inputs.FailOnMissing, {required: false})
     core.info(`Looking for \u001b[35m"${files}"\u001b[0m in artifact "${name}"`)
 
-    core.setOutput(Outputs.AllFound, true)
-    core.setOutput(Outputs.FilesFound, true)
-    core.info(`\u001b[1; XXX EARLY ABORT TRUE XXX`)
-    return
-
     const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ae-'))
     core.debug(`Temporary path is ${tmpDir}`)
 
-    const artifactClient = artifact.create()
-    {
-      // download a single artifact
-      core.info(`Starting download for "${name}"`)
-      const downloadOptions = {
-        createArtifactFolder: false
+    const artifacts = await (async () => {
+      if (!name.includes('*')) {
+        // download a single artifact
+        const response = await artifactClient.getArtifact(name)
+        return [response.artifact]
       }
-      const downloadResponse = await artifactClient.downloadArtifact(
-        name,
-        tmpDir,
-        downloadOptions
-      )
-      core.info(
-        `Artifact "${downloadResponse.artifactName}" was downloaded to ${downloadResponse.downloadPath}`
-      )
-    }
+
+      const listArtifactResponse = await artifactClient.listArtifacts({
+        latest: true,
+      })
+      core.info(`Filtering ${listArtifactResponse.artifacts.length} artifacts by pattern '${name}'`)
+      const matcher = new Minimatch(name)
+      return listArtifactResponse.artifacts.filter(artifact => matcher.match(artifact.name))
+    })();
+
+    core.info(`==> downloading ${artifacts.length} artifacts to ${tmpDir}`)
+    const results = await Promise.all(artifacts.map(artifact => {
+      core.info(`downloading artifact "${artifact.name}" id=${artifact.id} size=${artifact.size}`)
+      return artifactClient.downloadArtifact(artifact.id, { path: tmpDir })
+    }));
 
     const exists = files.filter(file => fs.existsSync(path.join(tmpDir, file)))
     const allFound = files.length == exists.length
